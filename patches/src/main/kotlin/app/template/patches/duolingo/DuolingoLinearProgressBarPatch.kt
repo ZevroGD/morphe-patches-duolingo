@@ -34,6 +34,7 @@ private val linearProgressBarFingerprint = fingerprint {
 val duolingoLinearProgressBarPatch = bytecodePatch(
     name = "Duolingo Linear Progress Bar",
     description = "Replaces Duolingo's OvershootInterpolator with a LinearInterpolator for smoother progress bars.",
+    default = false,
 ) {
     execute {
         val match = linearProgressBarFingerprint.match()
