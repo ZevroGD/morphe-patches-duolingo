@@ -78,8 +78,39 @@ jobs:
             printf '%s\n' "${files[@]}"
             exit 1
           fi
+          python3 - "${files[0]}" "$VERSION" <<'PY'
+          import sys
+          import zipfile
+
+          bundle, version = sys.argv[1:]
+          expected_class = b"app/template/patches/duolingo/DuolingoLinearProgressBarPatchKt"
+          expected_getter = b"getDuolingoLinearProgressBarPatch"
+
+          with zipfile.ZipFile(bundle) as archive:
+              names = set(archive.namelist())
+              if "classes.dex" not in names:
+                  raise SystemExit("::error::Bundle is missing classes.dex")
+              if "META-INF/MANIFEST.MF" not in names:
+                  raise SystemExit("::error::Bundle is missing META-INF/MANIFEST.MF")
+
+              manifest = archive.read("META-INF/MANIFEST.MF").decode("utf-8", "replace")
+              if f"Version: {version}" not in manifest:
+                  raise SystemExit("::error::Bundle manifest version does not match requested release")
+              if "Patcher-Version:" not in manifest:
+                  raise SystemExit("::error::Bundle manifest is missing Patcher-Version")
+
+              dex = archive.read("classes.dex")
+              if expected_class not in dex or expected_getter not in dex:
+                  raise SystemExit("::error::Expected patch class/getter was not found in classes.dex")
+
+          print(f"Bundle structure OK: {bundle}")
+          PY
+
           echo "file=${files[0]}" >> "$GITHUB_OUTPUT"
           echo "asset=patches-$VERSION.mpp" >> "$GITHUB_OUTPUT"
+
+      - name: Test bundle with Morphe JVM patch loader
+        run: ./gradlew :patches:test --no-daemon --no-configuration-cache
 
       - name: Publish GitHub release
         env:
