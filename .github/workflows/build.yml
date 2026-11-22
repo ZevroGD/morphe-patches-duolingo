@@ -1,0 +1,74 @@
+
+name: Build and Release Morphe Patches
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Configure Gradle credentials
+        env:
+          GPR_USER: ${{ secrets.GPR_USER }}
+          GPR_KEY: ${{ secrets.GPR_KEY }}
+        run: |
+          mkdir -p "$HOME/.gradle"
+          printf 'gpr.user=%s\ngpr.key=%s\n' \
+            "$GPR_USER" "$GPR_KEY" \
+            >> "$HOME/.gradle/gradle.properties"
+
+      - name: Build patches
+        run: ./gradlew clean buildAndroid --no-daemon
+
+      - name: Verify MPP output
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(patches/build/libs/*.mpp)
+
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error::No .mpp file was generated!"
+            exit 1
+          fi
+
+          printf '%s\n' "${files[@]}"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(patches/build/libs/*.mpp)
+
+          TAG="build-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}"
+
+          gh release create "$TAG" "${files[@]}" \
+            --target "$GITHUB_SHA" \
+            --title "Zevro Patches ${TAG}" \
+            --generate-notes
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: Zevro-Patches
+          path: patches/build/libs/*.mpp
+          if-no-files-found: error
+          retention-days: 14
