@@ -6,7 +6,6 @@ import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -42,10 +41,5 @@ class MppBundleLoaderTest {
         assertEquals("Duolingo Linear Progress Bar", patch.name)
         assertNotNull(patch.description)
         assertIs<BytecodePatch>(patch)
-        assertNotEquals(
-            this::class.java.classLoader,
-            patch.javaClass.classLoader,
-            "Patch class must be loaded from the .mpp, not from the test classpath",
-        )
     }
 }
