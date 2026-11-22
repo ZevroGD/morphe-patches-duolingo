@@ -18,6 +18,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
       - name: Validate release version
         shell: bash
         env:
@@ -31,11 +36,6 @@ jobs:
             echo "::error::Tag v$VERSION already exists"
             exit 1
           fi
-
-      - name: Checkout repository
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - name: Ensure release runs from main
         run: |
@@ -54,7 +54,7 @@ jobs:
       - name: Configure Gradle credentials
         env:
           GPR_USER: ${{ secrets.GPR_USER || github.actor }}
-          GPR_KEY: ${{ secrets.GPR_KEY || secrets.GITHUB_TOKEN }}
+          GPR_KEY: ${{ secrets.GPR_KEY || github.token }}
         run: |
           mkdir -p "$HOME/.gradle"
           printf 'gpr.user=%s\ngpr.key=%s\n' "$GPR_USER" "$GPR_KEY" >> "$HOME/.gradle/gradle.properties"
