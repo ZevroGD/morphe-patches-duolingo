@@ -1,6 +1,6 @@
 {
   "NOTE": "Patch catalog for Zevro Morphe Patches.",
-  "version": "0.0.1",
+  "version": "0.0.6",
   "patches": [
     {
       "name": "Duolingo Linear Progress Bar",
