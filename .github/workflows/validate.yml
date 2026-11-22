@@ -1,0 +1,74 @@
+name: Validate Morphe Patch Bundle
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  validate:
+    name: Build and test bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Configure Gradle credentials
+        env:
+          GPR_USER: ${{ github.actor }}
+          GPR_KEY: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p "$HOME/.gradle"
+          printf 'gpr.user=%s\\ngpr.key=%s\\n' "$GPR_USER" "$GPR_KEY" >> "$HOME/.gradle/gradle.properties"
+
+      - name: Build patch bundle
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew -Pversion=0.0.0 :patches:buildAndroid --no-daemon --no-configuration-cache
+
+      - name: Verify bundle structure
+        run: |
+          python3 - <<'PY'
+          import glob
+          import zipfile
+
+          files = glob.glob("patches/build/libs/*.mpp")
+          if len(files) != 1:
+              raise SystemExit(f"Expected exactly one .mpp bundle, found {len(files)}")
+
+          bundle = files[0]
+          expected_class = b"app/template/patches/duolingo/DuolingoLinearProgressBarPatchKt"
+          expected_getter = b"getDuolingoLinearProgressBarPatch"
+
+          with zipfile.ZipFile(bundle) as archive:
+              names = set(archive.namelist())
+              required = {"classes.dex", "META-INF/MANIFEST.MF"}
+              missing = required - names
+              if missing:
+                  raise SystemExit(f"Bundle is missing required entries: {sorted(missing)}")
+
+              manifest = archive.read("META-INF/MANIFEST.MF").decode("utf-8", "replace")
+              if "Patcher-Version:" not in manifest:
+                  raise SystemExit("Bundle manifest is missing Patcher-Version")
+
+              dex = archive.read("classes.dex")
+              if expected_class not in dex or expected_getter not in dex:
+                  raise SystemExit("Expected patch class/getter was not found in classes.dex")
+
+          print(f"Bundle structure OK: {bundle}")
+          PY
+
+      - name: Test with Morphe JVM patch loader
+        run: ./gradlew :patches:test --no-daemon --no-configuration-cache

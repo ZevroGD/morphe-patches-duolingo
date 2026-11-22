@@ -12,3 +12,17 @@ patches {
         license = "GPLv3"
     }
 }
+
+dependencies {
+    testImplementation(kotlin("test-junit5"))
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+}
+
+tasks.test {
+    useJUnitPlatform()
+
+    // Do not put the module's compiled patch classes on the test runtime classpath.
+    // Otherwise URLClassLoader's parent-first lookup could load the patch from build/classes
+    // instead of from the .mpp being tested.
+    classpath = files(sourceSets.test.get().output, configurations.testRuntimeClasspath)
+}
