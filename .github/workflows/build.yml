@@ -1,18 +1,16 @@
-
 name: Build and Release Morphe Patches
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - dev
+    inputs:
+      version:
+        description: "Release version (for example 1.0.0)"
+        required: true
+        type: string
 
 permissions:
   contents: write
-  packages: write
-  id-token: write
-  attestations: write
+  packages: read
 
 jobs:
   release:
@@ -20,51 +18,107 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Validate release version
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Version must be semantic, for example 1.0.0"
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" >/dev/null 2>&1; then
+            echo "::error::Tag v$VERSION already exists"
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
+      - name: Ensure release runs from main
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Run releases from the main branch"
+            exit 1
+          fi
+
       - name: Setup Java
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
           cache: gradle
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: lts/*
-          cache: npm
 
       - name: Configure Gradle credentials
         env:
-          GPR_USER: ${{ secrets.GPR_USER }}
-          GPR_KEY: ${{ secrets.GPR_KEY }}
+          GPR_USER: ${{ secrets.GPR_USER || github.actor }}
+          GPR_KEY: ${{ secrets.GPR_KEY || secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p "$HOME/.gradle"
-          printf 'gpr.user=%s\ngpr.key=%s\n' \
-            "$GPR_USER" "$GPR_KEY" \
-            >> "$HOME/.gradle/gradle.properties"
+          printf 'gpr.user=%s\ngpr.key=%s\n' "$GPR_USER" "$GPR_KEY" >> "$HOME/.gradle/gradle.properties"
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build and publish release
-        id: release
-        uses: cycjimmy/semantic-release-action@v8
+      - name: Build patches
         env:
+          VERSION: ${{ inputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MORPHE_SIGNING_KEY: ${{ secrets.MORPHE_SIGNING_KEY }}
+        run: ./gradlew -Pversion="$VERSION" :patches:buildAndroid --no-daemon --no-configuration-cache
 
-      - name: Verify build when no release is published
-        if: steps.release.outputs.new_release_published != 'true'
-        run: ./gradlew :patches:buildAndroid clean --no-daemon --no-configuration-cache
+      - name: Verify bundle
+        id: bundle
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          shopt -s nullglob
+          files=(patches/build/libs/*.mpp)
+          if [ "${#files[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one .mpp file, found ${#files[@]}"
+            printf '%s\n' "${files[@]}"
+            exit 1
+          fi
+          echo "file=${files[0]}" >> "$GITHUB_OUTPUT"
+          echo "asset=patches-$VERSION.mpp" >> "$GITHUB_OUTPUT"
 
-      - name: Attest release
-        if: steps.release.outputs.new_release_published == 'true'
-        uses: actions/attest-build-provenance@v4
-        with:
-          subject-name: Morphe Patches
-          subject-path: patches/build/libs/patches-*.mpp
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          gh release create "v$VERSION" "${{ steps.bundle.outputs.file }}#patches-$VERSION.mpp" \
+            --target "$GITHUB_SHA" \
+            --title "Zevro Patches v$VERSION" \
+            --generate-notes
+
+      - name: Update Morphe source metadata
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          python3 - <<'PY'
+          import datetime, json, os
+          version = os.environ["VERSION"]
+          path = "patches-bundle.json"
+          data = {
+              "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+              "description": "Custom Morphe patches for Duolingo by Zevro.",
+              "download_url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/v{version}/patches-{version}.mpp",
+              "signature_download_url": "",
+              "version": version,
+          }
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(data, f, indent=2)
+              f.write("\\n")
+          catalog_path = "patches-list.json"
+          with open(catalog_path, encoding="utf-8") as f:
+              catalog = json.load(f)
+          catalog["version"] = version
+          with open(catalog_path, "w", encoding="utf-8") as f:
+              json.dump(catalog, f, indent=2)
+              f.write("\\n")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add patches-bundle.json patches-list.json
+          git commit -m "chore: update Morphe source metadata for v$VERSION"
+          git push origin HEAD:main
