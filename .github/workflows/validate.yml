@@ -3,6 +3,8 @@ name: Validate Morphe Patch Bundle
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -31,7 +33,7 @@ jobs:
           GPR_KEY: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p "$HOME/.gradle"
-          printf 'gpr.user=%s\ngpr.key=%s\n' "$GPR_USER" "$GPR_KEY" >> "$HOME/.gradle/gradle.properties"
+          printf 'gpr.user=%s\\ngpr.key=%s\\n' "$GPR_USER" "$GPR_KEY" >> "$HOME/.gradle/gradle.properties"
 
       - name: Build patch bundle
         env:
@@ -71,4 +73,15 @@ jobs:
           PY
 
       - name: Test with Morphe JVM patch loader
-        run: ./gradlew :patches:test --no-daemon --no-configuration-cache
+        run: ./gradlew :patches:test --no-daemon --no-configuration-cache --stacktrace
+
+      - name: Upload Gradle test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: morphe-patch-test-diagnostics
+          path: |
+            patches/build/reports/tests/test/
+            patches/build/test-results/test/
+          if-no-files-found: warn
+          retention-days: 7
