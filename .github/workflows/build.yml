@@ -100,7 +100,7 @@ jobs:
           version = os.environ["VERSION"]
           path = "patches-bundle.json"
           data = {
-              "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat().replace("+00:00", "Z"),
+              "created_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"),
               "description": "Custom Morphe patches for Duolingo by Zevro.",
               "download_url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/v{version}/patches-{version}.mpp",
               "signature_download_url": "",
