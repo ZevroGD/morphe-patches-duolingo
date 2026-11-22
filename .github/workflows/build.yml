@@ -110,7 +110,18 @@ jobs:
           echo "asset=patches-$VERSION.mpp" >> "$GITHUB_OUTPUT"
 
       - name: Test bundle with Morphe JVM patch loader
-        run: ./gradlew :patches:test --no-daemon --no-configuration-cache
+        run: ./gradlew :patches:test --no-daemon --no-configuration-cache --stacktrace
+
+      - name: Upload Gradle test diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: morphe-release-test-diagnostics
+          path: |
+            patches/build/reports/tests/test/
+            patches/build/test-results/test/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Publish GitHub release
         env:
