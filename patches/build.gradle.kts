@@ -27,4 +27,13 @@ tasks.test {
 
     // Pass an absolute path instead of relying on Gradle's test working directory.
     systemProperty("mpp.bundle.dir", layout.buildDirectory.dir("libs").get().asFile.absolutePath)
+
+    // Preserve the complete loader exception and its nested cause in CI output.
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
 }
