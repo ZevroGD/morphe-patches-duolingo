@@ -1,13 +1,14 @@
 group = "app.zevro"
+version = providers.gradleProperty("version").orElse("0.0.0").get()
 
 patches {
     about {
         name = "Zevro Patches"
-        description = "Custom Duolingo patches"
-        source = "https://github.com/HomoHabibiGD/morphe-patches-duolingo"
+        description = "Custom patches for Duolingo."
+        source = "https://github.com/ZevroGD/morphe-patches-duolingo"
         author = "Zevro"
-        contact = "na"
-        website = "na"
+        contact = "https://github.com/ZevroGD"
+        website = "https://github.com/ZevroGD/morphe-patches-duolingo"
         license = "GPLv3"
     }
 }

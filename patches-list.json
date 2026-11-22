@@ -1,0 +1,13 @@
+{
+  "NOTE": "Patch catalog for Zevro Morphe Patches.",
+  "version": "0.0.0",
+  "patches": [
+    {
+      "name": "Duolingo Linear Progress Bar",
+      "description": "Replaces Duolingo's overshoot progress animation interpolator with a linear interpolator.",
+      "default": true,
+      "compatiblePackages": null,
+      "options": []
+    }
+  ]
+}
