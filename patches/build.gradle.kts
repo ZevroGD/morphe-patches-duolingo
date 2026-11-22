@@ -21,8 +21,10 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 
-    // Do not put the module's compiled patch classes on the test runtime classpath.
-    // Otherwise URLClassLoader's parent-first lookup could load the patch from build/classes
-    // instead of from the .mpp being tested.
+    // Keep compiled patch classes off the test runtime classpath so the loader
+    // must discover the patch from the .mpp archive itself.
     classpath = files(sourceSets.test.get().output, configurations.testRuntimeClasspath)
+
+    // Pass an absolute path instead of relying on Gradle's test working directory.
+    systemProperty("mpp.bundle.dir", layout.buildDirectory.dir("libs").get().asFile.absolutePath)
 }

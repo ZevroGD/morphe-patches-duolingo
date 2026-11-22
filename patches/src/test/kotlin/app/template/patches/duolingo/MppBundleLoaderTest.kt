@@ -12,8 +12,20 @@ import kotlin.test.assertNotNull
 class MppBundleLoaderTest {
     @Test
     fun `built bundle is discovered from the bundle by Morphe patch loader`() {
-        val bundleFiles = File("build/libs").listFiles { file -> file.extension == "mpp" }.orEmpty()
-        assertEquals(1, bundleFiles.size, "Expected exactly one built .mpp bundle")
+        val bundleDirectory = File(
+            requireNotNull(System.getProperty("mpp.bundle.dir")) {
+                "Gradle must provide the absolute .mpp output directory"
+            },
+        )
+        val bundleFiles = bundleDirectory
+            .listFiles { file -> file.isFile && file.extension == "mpp" }
+            .orEmpty()
+
+        assertEquals(
+            1,
+            bundleFiles.size,
+            "Expected exactly one built .mpp bundle in ${bundleDirectory.absolutePath}",
+        )
 
         val loadedPatches = loadPatchesFromJar(bundleFiles.toSet())
 
