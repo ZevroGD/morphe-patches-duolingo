@@ -35,7 +35,7 @@ jobs:
             >> "$HOME/.gradle/gradle.properties"
 
       - name: Build patches
-        run: ./gradlew clean buildAndroid --no-daemon
+        run: ./gradlew clean buildAndroid --no-daemon --no-configuration-cache 
 
       - name: Verify MPP output
         shell: bash
