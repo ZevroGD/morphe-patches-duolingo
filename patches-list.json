@@ -4,8 +4,8 @@
   "patches": [
     {
       "name": "Duolingo Linear Progress Bar",
-      "description": "Replaces Duolingo's overshoot progress animation interpolator with a linear interpolator.",
-      "default": true,
+      "description": "Replaces the overshoot progress animation interpolator with a linear interpolator.",
+      "default": false,
       "compatiblePackages": null,
       "options": []
     }
