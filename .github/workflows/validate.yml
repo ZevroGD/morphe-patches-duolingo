@@ -33,7 +33,7 @@ jobs:
           GPR_KEY: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p "$HOME/.gradle"
-          printf 'gpr.user=%s\\ngpr.key=%s\\n' "$GPR_USER" "$GPR_KEY" >> "$HOME/.gradle/gradle.properties"
+          printf 'gpr.user=%s\ngpr.key=%s\n' "$GPR_USER" "$GPR_KEY" >> "$HOME/.gradle/gradle.properties"
 
       - name: Build patch bundle
         env:
@@ -51,8 +51,12 @@ jobs:
               raise SystemExit(f"Expected exactly one .mpp bundle, found {len(files)}")
 
           bundle = files[0]
-          expected_class = b"app/template/patches/duolingo/DuolingoLinearProgressBarPatchKt"
-          expected_getter = b"getDuolingoLinearProgressBarPatch"
+          expected_symbols = [
+              b"app/template/patches/duolingo/DuolingoProgressBarPatchesKt",
+              b"getDuolingoLinearProgressMappingPatch",
+              b"getDuolingoConstantSpeedProgressPatch",
+              b"getDuolingoDisableRiveProgressBarPatch",
+          ]
 
           with zipfile.ZipFile(bundle) as archive:
               names = set(archive.namelist())
@@ -66,8 +70,12 @@ jobs:
                   raise SystemExit("Bundle manifest is missing Patcher-Version")
 
               dex = archive.read("classes.dex")
-              if expected_class not in dex or expected_getter not in dex:
-                  raise SystemExit("Expected patch class/getter was not found in classes.dex")
+              missing_symbols = [symbol.decode("ascii") for symbol in expected_symbols if symbol not in dex]
+              if missing_symbols:
+                  raise SystemExit(
+                      "Expected progress patch symbols were not found in classes.dex: "
+                      + ", ".join(missing_symbols)
+                  )
 
           print(f"Bundle structure OK: {bundle}")
           PY
