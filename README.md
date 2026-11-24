@@ -1,38 +1,48 @@
-# Zevro Morphe Patches
+# morphe-patches-duolingo
 
-Custom Morphe patches for Duolingo.
+Morphe patches for the Duolingo Android app.
 
-## Add this source to Morphe Manager
+**Target: Duolingo 6.98.4 (2463) only.** Duolingo's code is obfuscated, so the fingerprints use names that change
+with every release. On any other version the patches fail instead of patching the wrong thing.
 
-Add this repository URL as a patch source:
+None of these patches has been built or run on a device yet. See "Testing" below.
 
-`https://github.com/ZevroGD/morphe-patches-duolingo`
+## Patches
 
-The source metadata is published in [patches-bundle.json](patches-bundle.json). The patch catalog is in [patches-list.json](patches-list.json).
+Every patch is independently selectable.
 
-## Current patches
+### Lesson progress bar
 
-- **Duolingo Linear Progress Bar**: replaces the overshoot interpolator used by the matched progress-bar animation with a linear interpolator.
+| Patch | What it does |
+|---|---|
+| Linear lesson progress | Removes the experiment curve (`log4(1 + 3p)` and variants) that bends the bar's fill, so it fills in proportion to completed steps. |
+| Constant speed lesson progress | Animates the lesson bars at constant speed: duration proportional to distance, no start delay, no easing or overshoot. Options: full bar duration (default 5000 ms) and an optional longest-single-update cap (default off). |
+| Disable Rive lesson progress bar | Always uses the Android bar instead of the experimental Rive animation, whose easing cannot be changed from code. |
 
-## Releases
+Use all three for genuinely constant-speed progress. Quest and other progress bars are not touched.
 
-Releases are created manually through **Actions → Build and Release Morphe Patches → Run workflow**. Enter a semantic version such as `1.0.0`. The workflow builds the bundle, publishes it as a GitHub release, and updates the source metadata.
+### Leagues
 
-Versions follow semantic versioning:
-- Patch release: bug fixes, e.g. `1.0.1`
-- Minor release: new patches or features, e.g. `1.1.0`
-- Major release: breaking changes, e.g. `2.0.0`
+| Patch | What it does |
+|---|---|
+| Remove leagues | Removes Leagues and the Diamond Tournament by making Duolingo treat leaderboards as disabled, and redirects any attempt to open the Leagues tab to Learn. |
+| Block leagues notifications | Drops Leagues, leaderboard, tournament and friend-nudge push notifications. |
 
-## Signing
+### Video calls
 
-Bundle signing is optional. Unsigned releases use an empty `signature_download_url`; no signing key is required. If signing is added later, the private key must be stored only as the GitHub Actions secret `MORPHE_SIGNING_KEY`. Never commit the private key.
+| Patch | What it does |
+|---|---|
+| Remove video calls | Removes the video call tab and its promotions: session end, app open, Practice Hub, Plus purchase carousel and Plus checklist. |
+| Remove video call path nodes (experimental, off by default) | Removes video call levels from the learning path. Unit completion is untested. |
+| Hide video call quests | Hides the two daily quests that require a video call. |
 
-## Local build
+### Not covered
 
-Run:
+- The league repair and league result screens, the notification settings rows and channel, and background leaderboard fetches.
+- The Plus perks list for subscribers, and playable-ad promos.
 
-```bash
-./gradlew -Pversion=1.0.0 :patches:buildAndroid
-```
+## Testing
 
-The generated `.mpp` file is in `patches/build/libs/`.
+After building, check on a device: a lesson (steady bar, quests unchanged), the home tabs, a session end, the Practice
+Hub, the Plus screens and the quests tab. Enable the experimental path node patch separately and complete a unit that
+has video call levels.
