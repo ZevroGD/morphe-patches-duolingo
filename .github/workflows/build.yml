@@ -83,8 +83,14 @@ jobs:
           import zipfile
 
           bundle, version = sys.argv[1:]
-          expected_class = b"app/template/patches/duolingo/DuolingoLinearProgressBarPatchKt"
-          expected_getter = b"getDuolingoLinearProgressBarPatch"
+          # The old DuolingoLinearProgressBarPatch.kt file was replaced by
+          # DuolingoProgressBarPatches.kt, which now defines three top-level patches.
+          expected_symbols = [
+              b"app/template/patches/duolingo/DuolingoProgressBarPatchesKt",
+              b"getDuolingoLinearProgressMappingPatch",
+              b"getDuolingoConstantSpeedProgressPatch",
+              b"getDuolingoDisableRiveProgressBarPatch",
+          ]
 
           with zipfile.ZipFile(bundle) as archive:
               names = set(archive.namelist())
@@ -100,8 +106,12 @@ jobs:
                   raise SystemExit("::error::Bundle manifest is missing Patcher-Version")
 
               dex = archive.read("classes.dex")
-              if expected_class not in dex or expected_getter not in dex:
-                  raise SystemExit("::error::Expected patch class/getter was not found in classes.dex")
+              missing = [symbol.decode("ascii") for symbol in expected_symbols if symbol not in dex]
+              if missing:
+                  raise SystemExit(
+                      "::error::Expected progress patch symbols were not found in classes.dex: "
+                      + ", ".join(missing)
+                  )
 
           print(f"Bundle structure OK: {bundle}")
           PY
