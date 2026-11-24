@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-22T16:35:09",
+  "created_at": "2026-11-24T13:34:38",
   "description": "Custom Morphe patches for Duolingo by Zevro.",
-  "download_url": "https://github.com/ZevroGD/morphe-patches-duolingo/releases/download/v0.0.6/patches-0.0.6.mpp",
+  "download_url": "https://github.com/ZevroGD/morphe-patches-duolingo/releases/download/v1.0.0/patches-1.0.0.mpp",
   "signature_download_url": "",
-  "version": "0.0.6"
+  "version": "1.0.0"
 }
