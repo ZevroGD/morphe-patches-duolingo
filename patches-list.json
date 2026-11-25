@@ -3,8 +3,57 @@
   "version": "1.0.0",
   "patches": [
     {
-      "name": "Duolingo Linear Progress Bar",
-      "description": "Replaces the overshoot progress animation interpolator with a linear interpolator.",
+      "name": "Linear lesson progress",
+      "description": "Removes the experiment curve so the lesson progress bar fills in proportion to completed steps.",
+      "default": false,
+      "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Constant speed lesson progress",
+      "description": "Animates lesson progress at a constant speed with no easing, overshoot or start delay.",
+      "default": false,
+      "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Disable Rive lesson progress bar",
+      "description": "Uses the Android lesson progress bar instead of the experimental Rive animation.",
+      "default": false,
+      "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Remove leagues",
+      "description": "Removes the Leagues tab, Diamond Tournament, related deep links and session-end screens.",
+      "default": false,
+      "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Block leagues notifications",
+      "description": "Stops Leagues, leaderboard, tournament and friend-nudge push notifications.",
+      "default": false,
+      "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Remove video calls",
+      "description": "Removes the video-call tab and its promotions from session-end, app-open, Practice Hub and Plus screens.",
+      "default": false,
+      "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Remove video call path nodes (experimental)",
+      "description": "Removes video-call levels from the learning path. Unit completion is untested; disabled by default.",
+      "default": false,
+      "compatiblePackages": null,
+      "options": []
+    },
+    {
+      "name": "Hide video call quests",
+      "description": "Hides the daily quests that require a video call.",
       "default": false,
       "compatiblePackages": null,
       "options": []
