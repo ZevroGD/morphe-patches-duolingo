@@ -1,61 +1,240 @@
 {
-  "NOTE": "Patch catalog for Zevro Morphe Patches.",
+  "NOTE": "Patch catalog for Zevro Morphe Patches. Keep entries synchronized with the patch bundle; the release workflow updates the version.",
   "version": "1.0.0",
   "patches": [
     {
       "name": "Linear lesson progress",
       "description": "Removes the experiment curve so the lesson progress bar fills in proportion to completed steps.",
-      "default": false,
-      "compatiblePackages": null,
+      "category": null,
+      "default": true,
+      "compatiblePackages": [
+        {
+          "packageName": "com.duolingo",
+          "name": "Duolingo",
+          "description": null,
+          "apkFileType": "APK_REQUIRED",
+          "appIconColor": null,
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.98.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     },
     {
       "name": "Constant speed lesson progress",
       "description": "Animates lesson progress at a constant speed with no easing, overshoot or start delay.",
-      "default": false,
-      "compatiblePackages": null,
-      "options": []
+      "category": null,
+      "default": true,
+      "compatiblePackages": [
+        {
+          "packageName": "com.duolingo",
+          "name": "Duolingo",
+          "description": null,
+          "apkFileType": "APK_REQUIRED",
+          "appIconColor": null,
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.98.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": [
+        {
+          "key": "fullBarMs",
+          "title": "Full bar duration (ms)",
+          "description": "How long the bar takes to travel its whole length. Smaller steps take proportionally less time.",
+          "required": false,
+          "type": "kotlin.Int",
+          "default": 5000,
+          "values": null
+        },
+        {
+          "key": "maxStepMs",
+          "title": "Longest single update (ms)",
+          "description": "Caps the duration of one update. 0 disables the cap.",
+          "required": false,
+          "type": "kotlin.Int",
+          "default": 0,
+          "values": null
+        }
+      ]
     },
     {
       "name": "Disable Rive lesson progress bar",
       "description": "Uses the Android lesson progress bar instead of the experimental Rive animation.",
-      "default": false,
-      "compatiblePackages": null,
+      "category": null,
+      "default": true,
+      "compatiblePackages": [
+        {
+          "packageName": "com.duolingo",
+          "name": "Duolingo",
+          "description": null,
+          "apkFileType": "APK_REQUIRED",
+          "appIconColor": null,
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.98.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     },
     {
       "name": "Remove leagues",
       "description": "Removes the Leagues tab, Diamond Tournament, related deep links and session-end screens.",
-      "default": false,
-      "compatiblePackages": null,
+      "category": null,
+      "default": true,
+      "compatiblePackages": [
+        {
+          "packageName": "com.duolingo",
+          "name": "Duolingo",
+          "description": null,
+          "apkFileType": "APK_REQUIRED",
+          "appIconColor": null,
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.98.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     },
     {
       "name": "Block leagues notifications",
       "description": "Stops Leagues, leaderboard, tournament and friend-nudge push notifications.",
-      "default": false,
-      "compatiblePackages": null,
+      "category": null,
+      "default": true,
+      "compatiblePackages": [
+        {
+          "packageName": "com.duolingo",
+          "name": "Duolingo",
+          "description": null,
+          "apkFileType": "APK_REQUIRED",
+          "appIconColor": null,
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.98.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     },
     {
       "name": "Remove video calls",
       "description": "Removes the video-call tab and its promotions from session-end, app-open, Practice Hub and Plus screens.",
-      "default": false,
-      "compatiblePackages": null,
+      "category": null,
+      "default": true,
+      "compatiblePackages": [
+        {
+          "packageName": "com.duolingo",
+          "name": "Duolingo",
+          "description": null,
+          "apkFileType": "APK_REQUIRED",
+          "appIconColor": null,
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.98.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     },
     {
       "name": "Remove video call path nodes (experimental)",
       "description": "Removes video-call levels from the learning path. Unit completion is untested; disabled by default.",
+      "category": null,
       "default": false,
-      "compatiblePackages": null,
+      "compatiblePackages": [
+        {
+          "packageName": "com.duolingo",
+          "name": "Duolingo",
+          "description": null,
+          "apkFileType": "APK_REQUIRED",
+          "appIconColor": null,
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.98.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     },
     {
       "name": "Hide video call quests",
       "description": "Hides the daily quests that require a video call.",
-      "default": false,
-      "compatiblePackages": null,
+      "category": null,
+      "default": true,
+      "compatiblePackages": [
+        {
+          "packageName": "com.duolingo",
+          "name": "Duolingo",
+          "description": null,
+          "apkFileType": "APK_REQUIRED",
+          "appIconColor": null,
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.98.4",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
       "options": []
     }
   ]
