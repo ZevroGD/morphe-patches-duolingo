@@ -90,6 +90,14 @@ jobs:
               b"getDuolingoLinearProgressMappingPatch",
               b"getDuolingoConstantSpeedProgressPatch",
               b"getDuolingoDisableRiveProgressBarPatch",
+              b"app/template/patches/duolingo/DuolingoLeaguesPatchesKt",
+              b"getDuolingoRemoveLeaguesPatch",
+              b"getDuolingoBlockLeaguesNotificationsPatch",
+              b"app/template/patches/duolingo/DuolingoVideoCallPatchesKt",
+              b"getDuolingoRemoveVideoCallPatch",
+              b"getDuolingoRemoveVideoCallPathNodesPatch",
+              b"app/template/patches/duolingo/DuolingoQuestPatchesKt",
+              b"getDuolingoHideVideoCallQuestsPatch",
           ]
 
           with zipfile.ZipFile(bundle) as archive:
