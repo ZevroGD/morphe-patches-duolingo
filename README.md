@@ -5,7 +5,7 @@ Morphe patches for the Duolingo Android app.
 **Target: Duolingo 6.98.4 (2463) only.** Duolingo's code is obfuscated, so the fingerprints use names that change
 with every release. On any other version the patches fail instead of patching the wrong thing.
 
-None of these patches has been built or run on a device yet. See "Testing" below.
+The patch bundle has been built and its JVM loader tests have passed in GitHub Actions. The patches have not yet been verified in a live Duolingo installation. See "Testing" below.
 
 ## Patches
 
